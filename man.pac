@@ -10,10 +10,11 @@ var noProxyHosts = [
 // Сайты, которые нужно проксировать
 var proxyHosts = [
     "*.spill.info.gf",
-    "antizapret.prostovpn.org",
+    "*.antizapret.prostovpn.org",  // ИСПРАВЛЕНО: добавлена звездочка
+    "antizapret.prostovpn.org",    // Оставляем и без звездочки для точного совпадения
     "*.whisper.lablab.ai",
     "*.apple.com",
-    "*.anythingllm.com",
+    "*.anythingllm.com", 
     "*.chatgpt.com",
     "*.sora.chatgpt.com",
     "*.spotify.com",
@@ -21,17 +22,48 @@ var proxyHosts = [
     "*.2ip.ru"
 ];
 
-// Функция для проверки совпадения хоста с шаблоном (*.example.com)
+// Улучшенная функция для проверки совпадения хоста с шаблоном
 function shExpMatchHost(host, pattern) {
+    // Приводим к нижнему регистру для корректного сравнения
+    host = host.toLowerCase();
+    pattern = pattern.toLowerCase();
+
     if (pattern.startsWith("*.")) {
         var base = pattern.substring(2);
+        // Проверяем точное совпадение с базовым доменом или поддомены
         return host === base || host.endsWith("." + base);
     } else {
+        // Для паттернов без звездочки проверяем точное совпадение
         return host === pattern;
     }
 }
 
+// Альтернативная функция с поддержкой www автоматически
+function matchHostWithWWW(host, pattern) {
+    host = host.toLowerCase();
+    pattern = pattern.toLowerCase();
+
+    if (pattern.startsWith("*.")) {
+        var base = pattern.substring(2);
+        return host === base || host.endsWith("." + base);
+    } else {
+        // Для паттернов без звездочки проверяем как точное совпадение, 
+        // так и с www префиксом
+        return host === pattern || host === ("www." + pattern);
+    }
+}
+
 function FindProxyForURL(url, host) {
+
+    // Исключения из локальных сетей
+    if (isPlainHostName(host) ||
+        shExpMatch(host, "localhost") ||
+        isInNet(host, "10.0.0.0", "255.0.0.0") ||
+        isInNet(host, "172.16.0.0", "255.240.0.0") ||
+        isInNet(host, "192.168.0.0", "255.255.0.0") ||
+        isInNet(host, "127.0.0.0", "255.255.255.0")) {
+        return "DIRECT";
+    }
 
     // Проверка исключений — не проксировать эти сайты
     for (var i = 0; i < noProxyHosts.length; i++) {
