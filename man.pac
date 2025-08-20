@@ -19,7 +19,8 @@ var proxyHosts = [
     "*.sora.chatgpt.com",
     "*.spotify.com",
     "*.notion.so",
-    "*.2ip.ru"
+    "*.2ip.ru", 
+    "*.linkedin.com"
 ];
 
 // Улучшенная функция для проверки совпадения хоста с шаблоном
