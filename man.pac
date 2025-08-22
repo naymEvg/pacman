@@ -21,7 +21,7 @@ var proxyHosts = [
     "*.notion.so",
     "*.2ip.ru", 
     "*.linkedin.com",
-    "*.rutracker.org"
+    "*.rutracker.me"
 ];
 
 // Улучшенная функция для проверки совпадения хоста с шаблоном
