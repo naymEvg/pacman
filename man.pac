@@ -20,7 +20,8 @@ var proxyHosts = [
     "*.spotify.com",
     "*.notion.so",
     "*.2ip.ru", 
-    "*.linkedin.com"
+    "*.linkedin.com",
+    "*.rutracker.org"
 ];
 
 // Улучшенная функция для проверки совпадения хоста с шаблоном
