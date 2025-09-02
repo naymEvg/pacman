@@ -9,9 +9,6 @@ var noProxyHosts = [
 
 // Сайты, которые нужно проксировать
 var proxyHosts = [
-    "*.spill.info.gf",
-    "*.antizapret.prostovpn.org",  // ИСПРАВЛЕНО: добавлена звездочка
-    "antizapret.prostovpn.org",    // Оставляем и без звездочки для точного совпадения
     "*.whisper.lablab.ai",
     "*.apple.com",
     "*.anythingllm.com", 
@@ -21,7 +18,9 @@ var proxyHosts = [
     "*.notion.so",
     "*.2ip.ru", 
     "*.linkedin.com",
-    "*.rutracker.me"
+    "*.rutracker.me",
+    "*.ai.google.dev",
+    "*.gemini.google.com"
 ];
 
 // Улучшенная функция для проверки совпадения хоста с шаблоном
