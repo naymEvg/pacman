@@ -20,7 +20,8 @@ var proxyHosts = [
     "*.linkedin.com",
     "*.rutracker.me",
     "*.ai.google.dev",
-    "*.gemini.google.com"
+    "*.gemini.google.com",
+    "*ai.google.com"
 ];
 
 // Улучшенная функция для проверки совпадения хоста с шаблоном
