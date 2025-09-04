@@ -21,7 +21,8 @@ var proxyHosts = [
     "*.rutracker.me",
     "*.ai.google.dev",
     "*.gemini.google.com",
-    "*ai.google.com"
+    "*ai.google.com",
+    "*.openai.com"
 ];
 
 // Улучшенная функция для проверки совпадения хоста с шаблоном
