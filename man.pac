@@ -22,7 +22,8 @@ var proxyHosts = [
     "*.ai.google.dev",
     "*.gemini.google.com",
     "*ai.google.com",
-    "*.openai.com"
+    "*.openai.com",
+    "*.indeed.com"
 ];
 
 // Улучшенная функция для проверки совпадения хоста с шаблоном
