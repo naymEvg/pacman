@@ -1,28 +1,19 @@
 #!/bin/bash
 
-# Скрипт установки официального MTProxy для Telegram
-# Работает на Ubuntu/Debian
-
 set -e
-
-# Отключение интерактивных запросов
 export DEBIAN_FRONTEND=noninteractive
 
 echo "=== Установка MTProxy ==="
 
-# Цвета для вывода
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
-# Проверка прав root
 if [[ $EUID -ne 0 ]]; then
-   echo "Этот скрипт нужно запускать с правами root (sudo)"
+   echo "Запускайте с правами root (sudo)"
    exit 1
 fi
 
-# Настройки (можно изменить через переменные окружения)
 PROXY_PORT=${PROXY_PORT:-8443}
 STATS_PORT=${STATS_PORT:-8888}
 WORKERS=${WORKERS:-1}
@@ -34,14 +25,17 @@ apt-get upgrade -y -qq
 echo "Установка зависимостей..."
 apt-get install -y -qq git curl build-essential libssl-dev zlib1g-dev
 
-echo "Клонирование официального репозитория MTProxy..."
+echo "Клонирование репозитория MTProxy..."
 cd /opt
 if [ -d "MTProxy" ]; then
-    echo "Удаление старой версии..."
     rm -rf MTProxy
 fi
 git clone https://github.com/TelegramMessenger/MTProxy.git
 cd MTProxy
+
+echo "Исправление Makefile для Ubuntu 22.04..."
+# Добавляем -fcommon для совместимости с GCC 10+
+sed -i 's/CFLAGS\s*=\s*-O3/CFLAGS = -O3 -fcommon/' Makefile
 
 echo "Компиляция MTProxy..."
 make clean 2>/dev/null || true
@@ -62,7 +56,6 @@ curl -s https://core.telegram.org/getProxyConfig -o proxy-multi.conf
 echo "Генерация секретного ключа..."
 SECRET=$(head -c 16 /dev/urandom | xxd -ps)
 
-# Сохранение конфигурации
 cat > /etc/mtproto-proxy/config.txt <<EOF
 PORT=$PROXY_PORT
 SECRET=$SECRET
@@ -89,7 +82,6 @@ StandardError=journal
 WantedBy=multi-user.target
 EOF
 
-echo "Настройка автообновления конфигурации..."
 cat > /etc/cron.daily/mtproxy-update <<'EOF'
 #!/bin/bash
 cd /etc/mtproto-proxy
@@ -100,58 +92,33 @@ EOF
 
 chmod +x /etc/cron.daily/mtproxy-update
 
-echo "Перезагрузка systemd..."
 systemctl daemon-reload
-
-echo "Запуск MTProxy..."
 systemctl start mtproxy
 systemctl enable mtproxy
 
-# Ждем запуска
 sleep 3
 
-echo "Проверка статуса..."
 if systemctl is-active --quiet mtproxy; then
     echo -e "${GREEN}✓ MTProxy успешно запущен!${NC}"
 else
-    echo -e "${YELLOW}⚠ Возможная ошибка запуска. Проверьте логи: journalctl -u mtproxy -n 50${NC}"
+    echo "Ошибка запуска. Логи:"
     journalctl -u mtproxy -n 20 --no-pager
     exit 1
 fi
 
-# Получаем IP сервера
-echo "Определение внешнего IP..."
-SERVER_IP=$(curl -s --max-time 5 ifconfig.me || curl -s --max-time 5 icanhazip.com || curl -s --max-time 5 api.ipify.org)
-
-if [ -z "$SERVER_IP" ]; then
-    SERVER_IP="<YOUR_SERVER_IP>"
-    echo -e "${YELLOW}⚠ Не удалось автоматически определить IP. Замените <YOUR_SERVER_IP> на реальный IP сервера.${NC}"
-fi
+SERVER_IP=$(curl -s --max-time 5 ifconfig.me || echo "<YOUR_IP>")
 
 echo ""
 echo "=========================================="
 echo -e "${BLUE}MTProxy установлен и запущен!${NC}"
 echo "=========================================="
 echo ""
-echo "Параметры подключения:"
-echo "  IP: $SERVER_IP"
-echo "  Порт: $PROXY_PORT"
-echo "  Секрет: $SECRET"
-echo ""
 echo "Ссылка для подключения:"
 echo -e "${GREEN}tg://proxy?server=$SERVER_IP&port=$PROXY_PORT&secret=$SECRET${NC}"
 echo ""
-echo "Альтернативная ссылка (t.me):"
+echo "Альтернативная ссылка:"
 echo -e "${GREEN}https://t.me/proxy?server=$SERVER_IP&port=$PROXY_PORT&secret=$SECRET${NC}"
 echo ""
-echo "Управление сервисом:"
-echo "  Статус:      systemctl status mtproxy"
-echo "  Остановить:  systemctl stop mtproxy"
-echo "  Запустить:   systemctl start mtproxy"
-echo "  Рестарт:     systemctl restart mtproxy"
-echo "  Логи:        journalctl -u mtproxy -f"
-echo "  Статистика:  curl localhost:$STATS_PORT/stats"
-echo ""
-echo "Конфигурация сохранена в: /etc/mtproto-proxy/config.txt"
-echo "Автообновление серверов Telegram: ежедневно через cron"
-echo ""
+echo "Управление:"
+echo "  systemctl status mtproxy"
+echo "  systemctl restart
