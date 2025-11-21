@@ -19,6 +19,7 @@ var proxyHosts = [
     "*.2ip.ru", 
     "*.linkedin.com",
     "*.rutracker.me",
+    "*.rutracker.org",
     "*.ai.google.dev",
     "*.gemini.google.com",
     "*ai.google.com",
